@@ -13,7 +13,7 @@ const Speedometer = ({ speed = 0 }) => {
             <div className="speedometer">
                 <div className="dial"></div>
                 <div className="marks">
-                    {[0, 20, 40, 60, 80, 100].map(mark => (
+                    {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(mark => (
                         <div key={mark} className="mark" style={{transform: `rotate(${calcAngle(mark)}deg)`}}>
                             <div className="mark-label">{mark}</div>
                         </div>

@@ -5,6 +5,7 @@ import CirclesProgressBar from "@/components/circlesProgressBar";
 import LineProgressBar from "@/components/lineProgressBar";
 import Button from "@/components/button";
 import Speedometer from "@/components/speedometer";
+import BatteryLevel from "@/components/batteryLevel";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -15,11 +16,13 @@ export default function Home() {
     isEmergency: false,
     reset: false,
     motion: null,
-    ambientTemperature: 0,
-    batteryTemperature: 0,
-    averageTemperature: 0,
-    speed: 100,
-    progress: 0,
+    ambientTemperature: 22,
+    batteryTemperature: 69,
+    averageTemperature: 40,
+    speed: 65,
+    progress: 20,
+    percent: 85,
+    bandCount: 0,
   });
 
   useEffect(() => {
@@ -32,15 +35,17 @@ export default function Home() {
 
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
-      console.log("motionUpdate", data);
+      //console.log("motionUpdate", data);
     };
 
     const onTemperatureUpdate = (temps) => {
+      console.log("temperatureUpdate", temps);
+
       setState((prevState) => ({
         ...prevState,
-        ambientTemperature: temps.ambient,
-        batteryTemperature: temps.battery,
-        averageTemperature: temps.average,
+        ambientTemperature: temps.tempAmbient.toFixed(1),
+        batteryTemperature: temps.tempBattery.toFixed(1),
+        averageTemperature: ((parseFloat(temps.tempAmbient) + parseFloat(temps.tempBattery)) / 2).toFixed(1),
       }));
     };
 
@@ -49,7 +54,12 @@ export default function Home() {
     };
 
     const onProgressUpdate = (progress) => {
-      setState((prevState) => ({ ...prevState, progress }));
+      setState((prevState) => ({ ...prevState, progress: progress.toFixed(1) }));
+    };
+
+    const onBand = (data) => {
+      console.log(data);
+      setState((prevState) => ({ ...prevState, bandCount: data }));
     };
 
     socket.on("connect", onConnect);
@@ -57,6 +67,7 @@ export default function Home() {
     socket.on("temperatureUpdate", onTemperatureUpdate);
     socket.on("speedUpdate", onSpeedUpdate);
     socket.on("progressUpdate", onProgressUpdate);
+    socket.on("band", onBand);
 
     return () => {
       socket.off("connect", onConnect);
@@ -64,6 +75,7 @@ export default function Home() {
       socket.off("temperatureUpdate", onTemperatureUpdate);
       socket.off("speedUpdate", onSpeedUpdate);
       socket.off("progressUpdate", onProgressUpdate);
+      socket.off("band", onBand);
       socket.disconnect();
     };
   }, []);
@@ -74,6 +86,7 @@ export default function Home() {
       isReady: false,
       isStart: false,
       isStop: false,
+      isBrakeOpen: false,
       reset: true,
     }));
     setTimeout(
@@ -104,18 +117,19 @@ export default function Home() {
       { text: "Start", color: "bg-green-700", type: "isStart" },
       { text: "Stop", color: "bg-red-700", type: "isStop" },
       { text: "Brake Calibration", color: "bg-purple-700", type: "isBrake" },
+      { text: "Brake Open", color: "bg-purple-700", type: "isBrakeOpen" },
+      { text: "Brake Closed", color: "bg-purple-700", type: "isBrakeClosed" },
       { text: "Emergency", color: "bg-yellow-500", type: "isEmergency" },
+
     ],
     []
   );
-
-  // ... diğer importlar ve state yönetimi aynı kalacak
 
   return (
     <div className="container mx-auto px-2 py-4">
       <h1 className="text-2xl font-bold mb-4">Hyperloop Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Temperatures</h2>
           <div className="flex justify-between space-x-4">
@@ -133,6 +147,12 @@ export default function Home() {
             />
           </div>
         </div>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Battery</h2>
+          <div className="flex justify-between space-x-4">
+            <BatteryLevel percent={state.percent} />
+          </div>
+        </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Speed</h2>
@@ -143,7 +163,7 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Progress</h2>
-          <LineProgressBar percent={state.progress} />
+          <LineProgressBar progressData={state.progress} />
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
@@ -164,10 +184,10 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="bg-black p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-2">Motion Data</h2>
         {state.motion ? (
-          <pre className="bg-gray-100 p-2 rounded overflow-auto text-sm">
+          <pre className="bg-white-100 p-2 rounded overflow-auto text-sm">
             {JSON.stringify(state.motion, null, 2)}
           </pre>
         ) : (
