@@ -15,34 +15,41 @@ export default function Home() {
     isEmergency: false,
     reset: false,
     motion: null,
-    temperature: 0,
-    speed: 0,
+    ambientTemperature: 0,
+    batteryTemperature: 0,
+    averageTemperature: 0,
+    speed: 100,
     progress: 0,
   });
 
   useEffect(() => {
     socket.connect();
-    
+
     const onConnect = () => {
       socket.emit("dashboard", socket.id);
       console.log("connected", socket.id);
     };
 
     const onMotionUpdate = (data) => {
-      setState(prevState => ({ ...prevState, motion: data }));
+      setState((prevState) => ({ ...prevState, motion: data }));
       console.log("motionUpdate", data);
     };
 
-    const onTemperatureUpdate = (temp) => {
-      setState(prevState => ({ ...prevState, temperature: temp }));
+    const onTemperatureUpdate = (temps) => {
+      setState((prevState) => ({
+        ...prevState,
+        ambientTemperature: temps.ambient,
+        batteryTemperature: temps.battery,
+        averageTemperature: temps.average,
+      }));
     };
 
     const onSpeedUpdate = (speed) => {
-      setState(prevState => ({ ...prevState, speed }));
+      setState((prevState) => ({ ...prevState, speed }));
     };
 
     const onProgressUpdate = (progress) => {
-      setState(prevState => ({ ...prevState, progress }));
+      setState((prevState) => ({ ...prevState, progress }));
     };
 
     socket.on("connect", onConnect);
@@ -62,80 +69,111 @@ export default function Home() {
   }, []);
 
   const resetAll = useCallback(() => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
       isReady: false,
       isStart: false,
       isStop: false,
       reset: true,
     }));
-    setTimeout(() => setState(prevState => ({ ...prevState, reset: false })), 0);
+    setTimeout(
+      () => setState((prevState) => ({ ...prevState, reset: false })),
+      0
+    );
   }, []);
 
-  const handleButtonPress = useCallback((buttonType) => {
-    setState(prevState => {
-      const newState = { ...prevState, [buttonType]: !prevState[buttonType] };
-      socket.emit(buttonType, newState[buttonType]);
-      
-      if (buttonType === 'isStop') {
-        resetAll();
-      }
-      
-      return newState;
-    });
-  }, [resetAll]);
+  const handleButtonPress = useCallback(
+    (buttonType) => {
+      setState((prevState) => {
+        const newState = { ...prevState, [buttonType]: !prevState[buttonType] };
+        socket.emit(buttonType, newState[buttonType]);
 
-  const buttons = useMemo(() => [
-    { text: "Ready", color: "bg-blue-500", type: "isReady" },
-    { text: "Start", color: "bg-green-700", type: "isStart" },
-    { text: "Stop", color: "bg-red-700", type: "isStop" },
-    { text: "Brake Calibration", color: "bg-purple-700", type: "isBrake" },
-    { text: "Emergency", color: "bg-yellow-500", type: "isEmergency" },
-  ], []);
+        if (buttonType === "isStop") {
+          resetAll();
+        }
+
+        return newState;
+      });
+    },
+    [resetAll]
+  );
+
+  const buttons = useMemo(
+    () => [
+      { text: "Ready", color: "bg-blue-500", type: "isReady" },
+      { text: "Start", color: "bg-green-700", type: "isStart" },
+      { text: "Stop", color: "bg-red-700", type: "isStop" },
+      { text: "Brake Calibration", color: "bg-purple-700", type: "isBrake" },
+      { text: "Emergency", color: "bg-yellow-500", type: "isEmergency" },
+    ],
+    []
+  );
+
+  // ... diğer importlar ve state yönetimi aynı kalacak
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Hyperloop Dashboard</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Temperature</h2>
-          <CirclesProgressBar temperature={state.temperature} text="Average Temperature" />
+    <div className="container mx-auto px-2 py-4">
+      <h1 className="text-2xl font-bold mb-4">Hyperloop Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Temperatures</h2>
+          <div className="flex justify-between space-x-4">
+            <CirclesProgressBar
+              temperature={state.ambientTemperature}
+              text="Ambient"
+            />
+            <CirclesProgressBar
+              temperature={state.batteryTemperature}
+              text="Battery"
+            />
+            <CirclesProgressBar
+              temperature={state.averageTemperature}
+              text="Average"
+            />
+          </div>
         </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Speed</h2>
+
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Speed</h2>
           <Speedometer speed={state.speed} />
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Progress</h2>
-        <LineProgressBar percent={state.progress} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Progress</h2>
+          <LineProgressBar percent={state.progress} />
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Controls</h2>
+          <div className="flex flex-wrap justify-center gap-2">
+            {buttons.map((button) => (
+              <Button
+                key={button.type}
+                text={button.text}
+                color={button.color}
+                onPress={() => handleButtonPress(button.type)}
+                data={state[button.type]}
+                addingData={button.type === "isStart" ? state.isReady : true}
+                reset={state.reset}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 mb-8">
-        {buttons.map((button) => (
-          <Button
-            key={button.type}
-            text={button.text}
-            color={button.color}
-            onPress={() => handleButtonPress(button.type)}
-            data={state[button.type]}
-            addingData={button.type === 'isStart' ? state.isReady : true}
-            reset={state.reset}
-          />
-        ))}
-      </div>
-
-      {state.motion && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Motion Data</h2>
-          <pre className="bg-gray-100 p-4 rounded overflow-auto">
+      <div className="bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-2">Motion Data</h2>
+        {state.motion ? (
+          <pre className="bg-gray-100 p-2 rounded overflow-auto text-sm">
             {JSON.stringify(state.motion, null, 2)}
           </pre>
-        </div>
-      )}
+        ) : (
+          <p className="text-gray-500 italic">No Data</p>
+        )}
+      </div>
     </div>
   );
 }

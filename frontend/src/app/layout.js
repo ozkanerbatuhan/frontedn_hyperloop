@@ -3,6 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import "./globals.css";
 
+
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({ 
   subsets: ["latin"], 
