@@ -1,44 +1,36 @@
 "use client";
-import { useState, useEffect } from "react";
-const CirclesProgressBar = ({percent=10, text="test"}) => {
+import React from "react";
+import PropTypes from 'prop-types';
+
+const CirclesProgressBar = React.memo(({ temperature = 100, text = "test" }) => {
   return (
-    <div class="relative size-40 mx-16 mb-16">
-      <svg
-        class="size-full"
-        width="36"
-        height="36"
-        viewBox="0 0 36 36"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="18"
-          cy="18"
-          r="16"
-          fill="none"
-          class="stroke-current text-gray-200 dark:text-gray-700"
-          stroke-width="2"
-        ></circle>
-        <g class="origin-center -rotate-90 transform">
-          <circle
-            cx="18"
-            cy="18"
-            r="16"
-            fill="none"
-            class="stroke-current text-blue-600 dark:text-blue-500"
-            stroke-width="2"
-            stroke-dasharray="100"
-            stroke-dashoffset={(100-percent).toString()}
-          ></circle>
-        </g>
-      </svg>
-      <div class="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-        <span class="text-center text-2xl font-bold text-black">
-          {text}: {percent}%
-        </span>
+    <div className="flex">
+      <div className="mb-5 ml-5 flex flex-col items-center">
+        <div 
+          className="h-48 w-16 overflow-hidden rounded-full bg-green-200"
+          role="progressbar"
+          aria-valuenow={temperature}
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label={`${text} temperature`}
+        >
+          <div
+            className="h-full bg-gradient-to-t from-green-200 via-red-400 to-red-600 transition-all duration-300 ease-in-out"
+            style={{height: `${temperature}%`}}
+          ></div>
+        </div>
+        <span className="mt-2 text-2xl text-gray-600">{temperature}°</span>
+        <span className="mt-1 text-sm text-gray-500">{text}</span>
       </div>
     </div>
   );
+});
+
+CirclesProgressBar.propTypes = {
+  temperature: PropTypes.number,
+  text: PropTypes.string
 };
 
-export default CirclesProgressBar;
+CirclesProgressBar.displayName = 'CirclesProgressBar';
 
+export default CirclesProgressBar;
