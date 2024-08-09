@@ -1,0 +1,16 @@
+{
+  "name": "hyperloop2024frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^28.2.1",
+    "nodemon": "^3.0.3"
+  }
+}
