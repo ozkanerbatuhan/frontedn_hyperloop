@@ -6,6 +6,7 @@ import LineProgressBar from "@/components/lineProgressBar";
 import Button from "@/components/button";
 import Speedometer from "@/components/speedometer";
 import BatteryLevel from "@/components/batteryLevel";
+import MotionDataDisplay from "@/components/motionDataDisplay";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -184,16 +185,17 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-black p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-2">Motion Data</h2>
-        {state.motion ? (
-          <pre className="bg-white-100 p-2 rounded overflow-auto text-sm">
-            {JSON.stringify(state.motion, null, 2)}
-          </pre>
-        ) : (
-          <p className="text-gray-500 italic">No Data</p>
-        )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Band Count</h2>
+          <p className="text-lg text-gray-900 " >{state.bandCount}</p>
+        </div>
+        <div>
+        <MotionDataDisplay motion={state.motion} />
+        </div>
       </div>
+
+      
     </div>
   );
 }
