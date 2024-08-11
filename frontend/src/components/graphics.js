@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const Graphics = ({ motion }) => {
-  const [data, setData] = useState([]);
+const Graphics = ({ motion, globalData, isDataFlowing }) => {
+  const [data, setData] = useState(globalData);
 
   useEffect(() => {
-    if (motion) {
+    if (isDataFlowing && motion) {
       setData(prevData => {
         const newData = [...prevData, {
           time: new Date().getTime(),
@@ -14,10 +14,10 @@ const Graphics = ({ motion }) => {
           ...motion.position,
           ...motion.orientation
         }];
-        return newData; // Son 100 veriyi tut
+        return newData
       });
     }
-  }, [motion]);
+  }, [motion, isDataFlowing]);
 
   const chartConfig = useMemo(() => [
     { title: "Acceleration", dataKeys: { x: "x", y: "y", z: "z" } },

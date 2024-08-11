@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 import { socket } from "@/socket";
 import Graphics from "@/components/graphics";
 
+// Global veri deposu
+let globalData = [];
+let isDataFlowing = false;
+
 export default function Home() {
   const [state, setState] = useState({
     motion: null,
@@ -12,40 +16,46 @@ export default function Home() {
     averageTemperature: null,
   });
 
+  const [dataFlowState, setDataFlowState] = useState(false);
+
   useEffect(() => {
     const handleConnect = () => {
       socket.emit("dashboard", socket.id);
       console.log("connected", socket.id);
+      isDataFlowing = true;
+      setDataFlowState(true);
+      // Bağlantı yeniden kurulduğunda veriyi sıfırla
+      globalData = [];
     };
 
     const handleMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
+      if (isDataFlowing) {
+        globalData.push({
+          time: new Date().getTime(),
+          ...data.acceleration,
+          ...data.velocity,
+          ...data.position,
+          ...data.orientation
+        });
+        
+      }
     };
 
-    const handleTemperatureUpdate = (temps) => {
-      setState((prevState) => ({
-        ...prevState,
-        ambientTemperature: temps.tempAmbient.toFixed(1),
-        batteryTemperature: temps.tempBattery.toFixed(1),
-        averageTemperature: ((parseFloat(temps.tempAmbient) + parseFloat(temps.tempBattery)) / 2).toFixed(1),
-      }));
-    };
-
-    const handleSpeedUpdate = (speed) => {
-      setState((prevState) => ({ ...prevState, speed }));
+    const handleDisconnect = () => {
+      isDataFlowing = false;
+      setDataFlowState(false);
     };
 
     socket.connect();
     socket.on("connect", handleConnect);
     socket.on("motionUpdate", handleMotionUpdate);
-    socket.on("temperatureUpdate", handleTemperatureUpdate);
-    socket.on("speedUpdate", handleSpeedUpdate);
+    socket.on("disconnect", handleDisconnect);
 
     return () => {
       socket.off("connect", handleConnect);
       socket.off("motionUpdate", handleMotionUpdate);
-      socket.off("temperatureUpdate", handleTemperatureUpdate);
-      socket.off("speedUpdate", handleSpeedUpdate);
+      socket.off("disconnect", handleDisconnect);
       socket.disconnect();
     };
   }, []);
@@ -53,7 +63,7 @@ export default function Home() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-white">Graphics Dashboard</h1>
-      <Graphics motion={state.motion} />
+      <Graphics motion={state.motion} globalData={globalData} isDataFlowing={dataFlowState} />
     </div>
   );
 }
