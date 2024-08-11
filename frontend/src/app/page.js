@@ -42,11 +42,9 @@ export default function Home() {
 
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
-      //console.log("motionUpdate", data);
     };
 
     const onTemperatureUpdate = (temps) => {
-      console.log("temperatureUpdate", temps);
 
       setState((prevState) => ({
         ...prevState,
@@ -65,7 +63,6 @@ export default function Home() {
     };
 
     const onBand = (data) => {
-      console.log(data);
       setState((prevState) => ({ ...prevState, bandCount: data }));
     };
 

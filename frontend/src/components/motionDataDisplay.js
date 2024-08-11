@@ -4,6 +4,7 @@ const MotionDataDisplay = ({ motion }) => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Motion Data</h2>
+      
       {motion ? (
         <div className="space-y-4">
           <div className="flex justify-between space-x-8">
@@ -12,6 +13,7 @@ const MotionDataDisplay = ({ motion }) => {
               <p className="text-sm text-gray-900">X: {motion.acceleration.x.toFixed(3)}</p>
               <p className="text-sm text-gray-900">Y: {motion.acceleration.y.toFixed(3)}</p>
               <p className="text-sm text-gray-900">Z: {motion.acceleration.z.toFixed(3)}</p>
+              
             </div>
             <div>
               <h3 className="text-lg font-semibold text-black">Velocity</h3>
