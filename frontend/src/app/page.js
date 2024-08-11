@@ -7,6 +7,7 @@ import Button from "@/components/button";
 import Speedometer from "@/components/speedometer";
 import BatteryLevel from "@/components/batteryLevel";
 import MotionDataDisplay from "@/components/motionDataDisplay";
+import Train3D from "@/components/train3D";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -45,12 +46,14 @@ export default function Home() {
     };
 
     const onTemperatureUpdate = (temps) => {
-
       setState((prevState) => ({
         ...prevState,
         ambientTemperature: temps.tempAmbient.toFixed(1),
         batteryTemperature: temps.tempBattery.toFixed(1),
-        averageTemperature: ((parseFloat(temps.tempAmbient) + parseFloat(temps.tempBattery)) / 2).toFixed(1),
+        averageTemperature: (
+          (parseFloat(temps.tempAmbient) + parseFloat(temps.tempBattery)) /
+          2
+        ).toFixed(1),
       }));
     };
 
@@ -59,7 +62,10 @@ export default function Home() {
     };
 
     const onProgressUpdate = (progress) => {
-      setState((prevState) => ({ ...prevState, progress: progress.toFixed(1) }));
+      setState((prevState) => ({
+        ...prevState,
+        progress: progress.toFixed(1),
+      }));
     };
 
     const onBand = (data) => {
@@ -124,7 +130,6 @@ export default function Home() {
       { text: "Brake Open", color: "bg-purple-700", type: "isBrakeOpen" },
       { text: "Brake Closed", color: "bg-purple-700", type: "isBrakeClosed" },
       { text: "Emergency", color: "bg-yellow-500", type: "isEmergency" },
-
     ],
     []
   );
@@ -152,14 +157,26 @@ export default function Home() {
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-2">Batteries</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <BatteryLevel percent={state.batteryLevels.battery1} label="Battery 1" />
-          <BatteryLevel percent={state.batteryLevels.battery2} label="Battery 2" />
-          <BatteryLevel percent={state.batteryLevels.battery3} label="Battery 3" />
-          <BatteryLevel percent={state.batteryLevels.battery4} label="Battery 4" />
+          <h2 className="text-xl font-semibold mb-2">Batteries</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <BatteryLevel
+              percent={state.batteryLevels.battery1}
+              label="Elektronik Bataryası"
+            />
+            <BatteryLevel
+              percent={state.batteryLevels.battery2}
+              label="İtki Bataryası"
+            />
+            <BatteryLevel
+              percent={state.batteryLevels.battery3}
+              label="Motor Sürücü Bataryası"
+            />
+            <BatteryLevel
+              percent={state.batteryLevels.battery4}
+              label="Levitasyon Bataryası"
+            />
+          </div>
         </div>
-      </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Speed</h2>
@@ -194,14 +211,18 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Band Count</h2>
-          <p className="text-8xl text-gray-900 " >{state.bandCount}</p>
+          <p className="text-8xl text-gray-900 ">{state.bandCount}</p>
         </div>
         <div>
-        <MotionDataDisplay motion={state.motion} />
+          <MotionDataDisplay motion={state.motion} />
         </div>
       </div>
 
-      
+      {/* 3D Tren Animasyonu */}
+      <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+        <h2 className="text-xl font-semibold mb-2">3D Train Animation</h2>
+        <Train3D motion={state.motion} />
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@
   "dependencies": {
     "electron": "^28.2.1",
     "nodemon": "^3.0.3",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "three": "^0.167.1"
   }
 }
