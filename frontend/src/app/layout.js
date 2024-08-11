@@ -29,18 +29,17 @@ export default function RootLayout({ children }) {
           <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2">
               <img
-                src="/logo.svg"
+                src="favicon.ico"
                 alt="Hyperloop Logo"
                 className="w-8 h-8"
               />
               <span className="text-xl font-semibold text-gray-800 dark:text-white">
-                Hyperloop
+                HyperSonic
               </span>
             </Link>
             <ul className="flex space-x-4">
               <NavItem href="/" text="Home" />
-              <NavItem href="/temperature" text="Temperature" />
-              <NavItem href="/speed" text="Speed" />
+              <NavItem href="./graphics" text="Graphics" />
             </ul>
           </nav>
         </header>
@@ -49,7 +48,7 @@ export default function RootLayout({ children }) {
         </main>
         <footer className="bg-gray-100 dark:bg-gray-900 py-4">
           <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-            © {new Date().getFullYear()} Hyperloop Dashboard. All rights reserved.
+            © {new Date().getFullYear()} HyperSonic Dashboard. All rights reserved.
           </div>
         </footer>
       </body>

@@ -24,6 +24,12 @@ export default function Home() {
     progress: 20,
     percent: 85,
     bandCount: 0,
+    batteryLevels: {
+      battery1: 85,
+      battery2: 70,
+      battery3: 60,
+      battery4: 45,
+    },
   });
 
   useEffect(() => {
@@ -149,11 +155,14 @@ export default function Home() {
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Battery</h2>
-          <div className="flex justify-between space-x-4">
-            <BatteryLevel percent={state.percent} />
-          </div>
+        <h2 className="text-xl font-semibold mb-2">Batteries</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <BatteryLevel percent={state.batteryLevels.battery1} label="Battery 1" />
+          <BatteryLevel percent={state.batteryLevels.battery2} label="Battery 2" />
+          <BatteryLevel percent={state.batteryLevels.battery3} label="Battery 3" />
+          <BatteryLevel percent={state.batteryLevels.battery4} label="Battery 4" />
         </div>
+      </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Speed</h2>
@@ -188,7 +197,7 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Band Count</h2>
-          <p className="text-lg text-gray-900 " >{state.bandCount}</p>
+          <p className="text-8xl text-gray-900 " >{state.bandCount}</p>
         </div>
         <div>
         <MotionDataDisplay motion={state.motion} />
