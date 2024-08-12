@@ -3,6 +3,8 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 const LineProgressBar = React.memo(({ progressData = 60 }) => {
+  const redZoneStart = 78; // %78'den sonrası kırmızı olacak
+
   return (
     <div className="w-full px-4">
       <div className="relative pt-1">
@@ -20,7 +22,7 @@ const LineProgressBar = React.memo(({ progressData = 60 }) => {
         </div>
         <div className="overflow-hidden h-4 mb-4 text-xs flex rounded bg-blue-200 relative">
           <div 
-            style={{ width: `${progressData}%` }}
+            style={{ width: `${Math.min(progressData, redZoneStart)}%` }}
             className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500 ease-out"
             role="progressbar"
             aria-valuenow={progressData}
@@ -28,6 +30,12 @@ const LineProgressBar = React.memo(({ progressData = 60 }) => {
             aria-valuemax="100"
             aria-label="Progress bar"
           ></div>
+          {progressData > redZoneStart && (
+            <div 
+              style={{ width: `${progressData - redZoneStart}%` }}
+              className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500 transition-all duration-500 ease-out"
+            ></div>
+          )}
           <div 
             className="absolute top-0 left-0 h-full flex items-center transition-all duration-500 ease-out"
             style={{ left: `${progressData}%` }}
@@ -42,7 +50,10 @@ const LineProgressBar = React.memo(({ progressData = 60 }) => {
   );
 });
 
+LineProgressBar.propTypes = {
+  progressData: PropTypes.number
+};
 
-
+LineProgressBar.displayName = 'LineProgressBar';
 
 export default LineProgressBar;

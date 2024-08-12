@@ -8,6 +8,7 @@ import Speedometer from "@/components/speedometer";
 import BatteryLevel from "@/components/batteryLevel";
 import MotionDataDisplay from "@/components/motionDataDisplay";
 import Train3D from "@/components/train3D";
+import Lidar from "@/components/lidar";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -22,9 +23,10 @@ export default function Home() {
     batteryTemperature: 69,
     averageTemperature: 40,
     speed: 65,
-    progress: 20,
+    progress:85,
     percent: 85,
     bandCount: 0,
+    
     batteryLevels: {
       battery1: 85,
       battery2: 70,
@@ -33,12 +35,18 @@ export default function Home() {
     },
   });
 
+  const[lidarData, setLidarData] = useState(35)
+
   useEffect(() => {
     socket.connect();
 
     const onConnect = () => {
       socket.emit("dashboard", socket.id);
       console.log("connected", socket.id);
+    };
+
+    const onLidarUpdate = (data) => {
+      setLidarData(data);
     };
 
     const onMotionUpdate = (data) => {
@@ -78,6 +86,7 @@ export default function Home() {
     socket.on("speedUpdate", onSpeedUpdate);
     socket.on("progressUpdate", onProgressUpdate);
     socket.on("band", onBand);
+    socket.on("lidarUpdate", onLidarUpdate);
 
     return () => {
       socket.off("connect", onConnect);
@@ -86,6 +95,7 @@ export default function Home() {
       socket.off("speedUpdate", onSpeedUpdate);
       socket.off("progressUpdate", onProgressUpdate);
       socket.off("band", onBand);
+      socket.off("lidarUpdate", onLidarUpdate);
       socket.disconnect();
     };
   }, []);
@@ -209,9 +219,14 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Band Count</h2>
-          <p className="text-8xl text-gray-900 ">{state.bandCount}</p>
+        <div>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-2">Band Count and Lidar</h2>
+            <div className="flex justify-between items-center">
+              <p className="text-8xl text-gray-900">{state.bandCount}</p>
+              <Lidar lidarData={lidarData} />
+            </div>
+          </div>
         </div>
         <div>
           <MotionDataDisplay motion={state.motion} />

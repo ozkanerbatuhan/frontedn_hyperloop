@@ -14,7 +14,7 @@ const Graphics = ({ motion, globalData, isDataFlowing }) => {
           ...motion.position,
           ...motion.orientation
         }];
-        return newData
+        return newData.slice(-100000);
       });
     }
   }, [motion, isDataFlowing]);

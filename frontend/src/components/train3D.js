@@ -76,34 +76,46 @@ const Train3D = ({ motion }) => {
 
   const createTrain = () => {
     const group = new THREE.Group();
-
-    // Train body
-    const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 4, 32);
-    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x1E90FF, metalness: 0.7, roughness: 0.3 });
+  
+    // Ana gövde
+    const bodyGeometry = new THREE.BoxGeometry(4, 0.8, 0.6);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x1E90FF });
     const trainBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    trainBody.rotation.z = Math.PI / 2;
+    trainBody.position.y = 0.4;
     trainBody.castShadow = true;
     group.add(trainBody);
-
-    // Train nose
-    const noseGeometry = new THREE.ConeGeometry(0.5, 1, 32);
-    const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x1E90FF, metalness: 0.7, roughness: 0.3 });
-    const trainNose = new THREE.Mesh(noseGeometry, noseMaterial);
-    trainNose.rotation.z = -Math.PI / 2;
-    trainNose.position.set(2.5, 0, 0);
-    trainNose.castShadow = true;
-    group.add(trainNose);
-
-    // Windows
-    const windowGeometry = new THREE.PlaneGeometry(0.5, 0.3);
-    const windowMaterial = new THREE.MeshPhongMaterial({ color: 0xADD8E6, shininess: 100, transparent: true, opacity: 0.7 });
+  
+    // Çatı
+    const roofGeometry = new THREE.CylinderGeometry(0.3, 0.3, 4, 8, 1, false, 0, Math.PI);
+    const roofMaterial = new THREE.MeshPhongMaterial({ color: 0x0000CD });
+    const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+    roof.rotation.z = Math.PI / 2;
+    roof.position.y = 0.8;
+    roof.castShadow = true;
+    group.add(roof);
+  
+    // Pencereler
+    const windowGeometry = new THREE.PlaneGeometry(0.4, 0.3);
+    const windowMaterial = new THREE.MeshPhongMaterial({ color: 0xADD8E6, transparent: true, opacity: 0.7 });
     for (let i = -1.5; i <= 1.5; i += 0.75) {
       const windowMesh = new THREE.Mesh(windowGeometry, windowMaterial);
-      windowMesh.position.set(i, 0.35, -0.49);
-      windowMesh.rotation.y = Math.PI / 2;
+      windowMesh.position.set(i, 0.5, 0.31);
       group.add(windowMesh);
     }
-
+  
+    // Tekerlekler
+    const wheelGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16);
+    const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x1A1A1A });
+    for (let i = -1.5; i <= 1.5; i += 1) {
+      const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(i, 0.2, 0.35);
+      group.add(wheel);
+      const wheel2 = wheel.clone();
+      wheel2.position.z = -0.35;
+      group.add(wheel2);
+    }
+  
     return group;
   };
 
