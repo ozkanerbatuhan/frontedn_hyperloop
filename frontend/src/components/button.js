@@ -10,15 +10,21 @@ const Button = React.memo(
     data,
     addingData = false,
     reset = false,
+    isActive = false,
+    group = null,
   }) => {
     const [isHighlighted, setIsHighlighted] = useState(false);
-    const [isActive, setIsActive] = useState(false);
+    const [localIsActive, setLocalIsActive] = useState(isActive);
 
     useEffect(() => {
       if (reset) {
-        setIsActive(false);
+        setLocalIsActive(false);
       }
     }, [reset]);
+
+    useEffect(() => {
+      setLocalIsActive(isActive);
+    }, [isActive]);
 
     const handlePress = useCallback(() => {
       if (text === "Start" && !addingData) {
@@ -28,34 +34,34 @@ const Button = React.memo(
 
       onPress();
 
-      setIsActive((prevActive) => {
-        if (text === "Start" || text === "Ready") {
-          return true;
-        } else if (text === "Stop") {
-          return false;
-        }
-        return prevActive;
-      });
-    }, [text, addingData, onPress]);
-
-    // ... diğer importlar ve component logic'i aynı kalacak
+      if (group === "brake") {
+        setLocalIsActive(true);
+      } else {
+        setLocalIsActive((prevActive) => {
+          if (text === "Start" || text === "Ready") {
+            return true;
+          } else if (text === "Stop") {
+            return false;
+          }
+          return !prevActive;
+        });
+      }
+    }, [text, addingData, onPress, group]);
 
     return (
       <button
         type="button"
-        className={`text-white ${color} rounded-lg h-10 m-1 py-1 px-2 text-sm transition-shadow duration-300 ${
+        className={`text-white ${color} rounded-lg h-10 m-1 py-1 px-4 text-sm transition-all duration-300 ${
           isHighlighted ? "shadow-lg" : ""
-        } ${isActive ? "border-2 border-black" : ""}`}
+        } ${localIsActive ? "border-2 border-black" : ""} hover:opacity-80`}
         onClick={handlePress}
         onMouseEnter={() => setIsHighlighted(true)}
         onMouseLeave={() => setIsHighlighted(false)}
-        aria-pressed={isActive}
+        aria-pressed={localIsActive}
       >
         {text}
       </button>
     );
-
-    // ... geri kalan kod aynı kalacak
   }
 );
 
@@ -66,8 +72,8 @@ Button.propTypes = {
   data: PropTypes.any,
   addingData: PropTypes.bool,
   reset: PropTypes.bool,
+  isActive: PropTypes.bool,
+  group: PropTypes.string,
 };
-
-Button.displayName = "Button";
 
 export default Button;

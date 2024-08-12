@@ -19,7 +19,7 @@ const CirclesProgressBar = React.memo(({ temperature = 100, text = "test" }) => 
         ></div>
       </div>
       <span className="mt-1 text-lg text-gray-600">{temperature}°</span>
-      <span className="text-xs text-gray-500">{text}</span>
+      <span className="text-x text-black">{text}</span>
     </div>
   );
 });
