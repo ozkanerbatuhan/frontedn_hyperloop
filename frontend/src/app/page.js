@@ -36,6 +36,7 @@ export default function Home() {
       battery4: 100,
     },
   });
+  const [isConnect, setIsConnect] = useState(false);
 
   const [lidarData, setLidarData] = useState({
     dis: 0,
@@ -50,7 +51,7 @@ export default function Home() {
     timeStep: 0,
   });
 
-  console.log(positionData)
+  console.log(positionData);
 
   useEffect(() => {
     socket.connect();
@@ -58,17 +59,18 @@ export default function Home() {
     const onConnect = () => {
       socket.emit("dashboard", socket.id);
       console.log("connected", socket.id);
+      setIsConnect(true);
     };
 
     const onLidarUpdate = (data) => {
       setLidarData(data);
     };
 
-    const onPositionUpdate = (data) => { 
-      console.log("onPositionUpdate", data)
+    const onPositionUpdate = (data) => {
+      console.log("onPositionUpdate", data);
       setPositionData(data);
     };
-  
+
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
     };
@@ -78,7 +80,11 @@ export default function Home() {
         ...prevState,
         ambientTemperature: temps.tempAmbient.toFixed(1),
         batteryTemperature: temps.tempBattery.toFixed(1),
-        averageTemperature: (ambientTemperature + batteryTemperature) / 2,
+        averageTemperature: (
+          (parseFloat(temps.tempAmbient.toFixed(1)) +
+            parseFloat(temps.tempBattery.toFixed(1))) /
+          2
+        ).toFixed(1),
       }));
     };
 
@@ -92,7 +98,6 @@ export default function Home() {
         progress: progress.toFixed(1),
       }));
     };
-
 
     socket.on("connect", onConnect);
     socket.on("motionUpdate", onMotionUpdate);
@@ -111,6 +116,7 @@ export default function Home() {
       socket.off("lidarUpdate", onLidarUpdate);
       socket.off("positionUpdate", onPositionUpdate);
       socket.disconnect();
+      setIsConnect(false);
     };
   }, []);
 
@@ -196,7 +202,12 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-2 py-4">
-      <h1 className="text-2xl font-bold mb-4">Hyperloop Dashboard</h1>
+      <p1 className="text-2xl font-bold mb-4">
+        Hyperloop Dashboard{" "}
+        {isConnect ? (
+          <h1 className="text-2xl font-bold mb-4">Connected</h1>
+        ) : null}
+      </p1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
@@ -204,7 +215,7 @@ export default function Home() {
           <div className="flex justify-between space-x-4">
             <CirclesProgressBar
               temperature={state.ambientTemperature}
-              text="Lidar"
+              text="Ambient"
             />
             <CirclesProgressBar
               temperature={state.batteryTemperature}
@@ -239,7 +250,7 @@ export default function Home() {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Speed</h2>
+          <h2 className="text-xl font-semibold mb-2">Speed TimeStep: {positionData.timeStep}</h2>
           <Speedometer speed={state.speed} />
         </div>
       </div>
@@ -314,7 +325,10 @@ export default function Home() {
           <div className="bg-white p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-2">Band Count and Lidar</h2>
             <div className="flex justify-between items-center">
-              <p className="text-xl text-gray-900">Passed Band: {positionData.passedBandCount} Timestep: {positionData.timeStep} Position: {positionData.position}</p>
+              <p className="text-xl text-gray-900">
+                Passed Band: {positionData.passedBandCount} Timestep:{" "}
+                {positionData.timeStep} Position: {positionData.position}
+              </p>
               <Lidar lidarData={lidarData} />
             </div>
           </div>

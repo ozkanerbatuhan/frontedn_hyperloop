@@ -1,10 +1,12 @@
 import { io } from "socket.io-client";
 
+
+
 const getSocketURL = () => {
   if (process.env.NODE_ENV === 'production') {
     return process.env.NEXT_PUBLIC_SOCKET_URL;
   }
-  return "http://10.21.3.162:3030"; // Geliştirme ortamı için varsayılan URL
+  return "http://192.168.98.207:3030"; // Geliştirme ortamı için varsayılan URL
 };
 
 const URL = getSocketURL();
