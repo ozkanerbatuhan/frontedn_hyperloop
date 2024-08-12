@@ -16,26 +16,41 @@ export default function Home() {
     isStart: false,
     isStop: false,
     isBrake: false,
+    isBrakeOpen: false,
+    isBrakeClosed: false,
     isEmergency: false,
     reset: false,
     motion: null,
-    ambientTemperature: 22,
-    batteryTemperature: 69,
-    averageTemperature: 40,
-    speed: 65,
-    progress:85,
-    percent: 85,
+    ambientTemperature: 0,
+    batteryTemperature: 0,
+    averageTemperature: 0,
+    speed: 0,
+    progress: 0,
+    percent: 0,
     bandCount: 0,
-    
+
     batteryLevels: {
-      battery1: 85,
-      battery2: 70,
-      battery3: 60,
-      battery4: 45,
+      battery1: 100,
+      battery2: 100,
+      battery3: 100,
+      battery4: 100,
     },
   });
 
-  const[lidarData, setLidarData] = useState(35)
+  const [lidarData, setLidarData] = useState({
+    dis: 0,
+    strength: 0,
+    temp: 0,
+    time: 0,
+  });
+
+  const [positionData, setPositionData] = useState({
+    passedBandCount: 0,
+    position: 0,
+    timeStep: 0,
+  });
+
+  console.log(positionData)
 
   useEffect(() => {
     socket.connect();
@@ -49,6 +64,11 @@ export default function Home() {
       setLidarData(data);
     };
 
+    const onPositionUpdate = (data) => { 
+      console.log("onPositionUpdate", data)
+      setPositionData(data);
+    };
+  
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
     };
@@ -58,10 +78,7 @@ export default function Home() {
         ...prevState,
         ambientTemperature: temps.tempAmbient.toFixed(1),
         batteryTemperature: temps.tempBattery.toFixed(1),
-        averageTemperature: (
-          (parseFloat(temps.tempAmbient) + parseFloat(temps.tempBattery)) /
-          2
-        ).toFixed(1),
+        averageTemperature: (ambientTemperature + batteryTemperature) / 2,
       }));
     };
 
@@ -76,17 +93,14 @@ export default function Home() {
       }));
     };
 
-    const onBand = (data) => {
-      setState((prevState) => ({ ...prevState, bandCount: data }));
-    };
 
     socket.on("connect", onConnect);
     socket.on("motionUpdate", onMotionUpdate);
     socket.on("temperatureUpdate", onTemperatureUpdate);
     socket.on("speedUpdate", onSpeedUpdate);
     socket.on("progressUpdate", onProgressUpdate);
-    socket.on("band", onBand);
     socket.on("lidarUpdate", onLidarUpdate);
+    socket.on("positionUpdate", onPositionUpdate);
 
     return () => {
       socket.off("connect", onConnect);
@@ -94,8 +108,8 @@ export default function Home() {
       socket.off("temperatureUpdate", onTemperatureUpdate);
       socket.off("speedUpdate", onSpeedUpdate);
       socket.off("progressUpdate", onProgressUpdate);
-      socket.off("band", onBand);
       socket.off("lidarUpdate", onLidarUpdate);
+      socket.off("positionUpdate", onPositionUpdate);
       socket.disconnect();
     };
   }, []);
@@ -119,6 +133,12 @@ export default function Home() {
     (buttonType) => {
       setState((prevState) => {
         const newState = { ...prevState, [buttonType]: !prevState[buttonType] };
+
+        if (buttonType === "isBrakeOpen" || buttonType === "isBrakeClosed") {
+          newState.isBrakeOpen = buttonType === "isBrakeOpen";
+          newState.isBrakeClosed = buttonType === "isBrakeClosed";
+        }
+
         socket.emit(buttonType, newState[buttonType]);
 
         if (buttonType === "isStop") {
@@ -133,13 +153,43 @@ export default function Home() {
 
   const buttons = useMemo(
     () => [
-      { text: "Ready", color: "bg-blue-500", type: "isReady" },
-      { text: "Start", color: "bg-green-700", type: "isStart" },
-      { text: "Stop", color: "bg-red-700", type: "isStop" },
-      { text: "Brake Calibration", color: "bg-purple-700", type: "isBrake" },
-      { text: "Brake Open", color: "bg-purple-700", type: "isBrakeOpen" },
-      { text: "Brake Closed", color: "bg-purple-700", type: "isBrakeClosed" },
-      { text: "Emergency", color: "bg-yellow-500", type: "isEmergency" },
+      {
+        text: "Ready",
+        color: "bg-blue-500",
+        type: "isReady",
+        group: "control",
+      },
+      {
+        text: "Start",
+        color: "bg-green-700",
+        type: "isStart",
+        group: "control",
+      },
+      { text: "Stop", color: "bg-red-700", type: "isStop", group: "control" },
+      {
+        text: "Brake Calibration",
+        color: "bg-purple-700",
+        type: "isBrake",
+        group: "brake",
+      },
+      {
+        text: "Brake Open",
+        color: "bg-purple-700",
+        type: "isBrakeOpen",
+        group: "brake",
+      },
+      {
+        text: "Brake Closed",
+        color: "bg-purple-700",
+        type: "isBrakeClosed",
+        group: "brake",
+      },
+      {
+        text: "Emergency",
+        color: "bg-yellow-500",
+        type: "isEmergency",
+        group: "emergency",
+      },
     ],
     []
   );
@@ -154,7 +204,7 @@ export default function Home() {
           <div className="flex justify-between space-x-4">
             <CirclesProgressBar
               temperature={state.ambientTemperature}
-              text="Ambient"
+              text="Lidar"
             />
             <CirclesProgressBar
               temperature={state.batteryTemperature}
@@ -199,21 +249,62 @@ export default function Home() {
           <h2 className="text-xl font-semibold mb-2">Progress</h2>
           <LineProgressBar progressData={state.progress} />
         </div>
-
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Controls</h2>
-          <div className="flex flex-wrap justify-center gap-2">
-            {buttons.map((button) => (
-              <Button
-                key={button.type}
-                text={button.text}
-                color={button.color}
-                onPress={() => handleButtonPress(button.type)}
-                data={state[button.type]}
-                addingData={button.type === "isStart" ? state.isReady : true}
-                reset={state.reset}
-              />
-            ))}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap justify-center gap-2">
+              {buttons
+                .filter((b) => b.group === "control")
+                .map((button) => (
+                  <Button
+                    key={button.type}
+                    text={button.text}
+                    color={button.color}
+                    onPress={() => handleButtonPress(button.type)}
+                    data={state[button.type]}
+                    addingData={
+                      button.type === "isStart" ? state.isReady : true
+                    }
+                    reset={state.reset}
+                    isActive={state[button.type]}
+                    group={button.group}
+                  />
+                ))}
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {buttons
+                .filter((b) => b.group === "brake")
+                .map((button) => (
+                  <Button
+                    key={button.type}
+                    text={button.text}
+                    color={button.color}
+                    onPress={() => handleButtonPress(button.type)}
+                    data={state[button.type]}
+                    addingData={true}
+                    reset={state.reset}
+                    isActive={state[button.type]}
+                    group={button.group}
+                  />
+                ))}
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {buttons
+                .filter((b) => b.group === "emergency")
+                .map((button) => (
+                  <Button
+                    key={button.type}
+                    text={button.text}
+                    color={button.color}
+                    onPress={() => handleButtonPress(button.type)}
+                    data={state[button.type]}
+                    addingData={true}
+                    reset={state.reset}
+                    isActive={state[button.type]}
+                    group={button.group}
+                  />
+                ))}
+            </div>
           </div>
         </div>
       </div>
@@ -223,7 +314,7 @@ export default function Home() {
           <div className="bg-white p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-2">Band Count and Lidar</h2>
             <div className="flex justify-between items-center">
-              <p className="text-8xl text-gray-900">{state.bandCount}</p>
+              <p className="text-xl text-gray-900">Passed Band: {positionData.passedBandCount} Timestep: {positionData.timeStep} Position: {positionData.position}</p>
               <Lidar lidarData={lidarData} />
             </div>
           </div>
