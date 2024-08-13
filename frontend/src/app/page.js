@@ -189,6 +189,35 @@ export default function Home() {
           resetAll();
         }
 
+        switch (buttonType) {
+          case "isReady":
+            socket.emit("ready", newState.isReady);
+            break;
+          case "isStart":
+            socket.emit("start", newState.isStart);
+            break;
+          case "isStop":
+            socket.emit("stop", newState.isStop);
+            if (newState.isStop) {
+              resetAll();
+            }
+            break;
+          case "isBrake":
+            socket.emit("break_event", newState.isBrake);
+            break;
+          case "isBrakeOpen":
+            socket.emit("break_open", newState.isBrakeOpen);
+            break;
+          case "isBrakeClosed":
+            socket.emit("break_close", newState.isBrakeClosed);
+            break;
+          case "isEmergency":
+            socket.emit("emergency", newState.isEmergency); // If you have an "emergen  cy" event
+            break;
+          default:
+            break;
+        }
+
         return newState;
       });
     },
@@ -202,7 +231,6 @@ export default function Home() {
         color: "bg-blue-500",
         type: "isReady",
         group: "control",
-        
       },
       {
         text: "Start",
