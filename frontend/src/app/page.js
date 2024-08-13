@@ -38,6 +38,8 @@ export default function Home() {
     },
   });
   const [isConnect, setIsConnect] = useState(false);
+  const [isReceivingData, setIsReceivingData] = useState(false);
+  const [ping, setPing] = useState(0);
 
   const [lidarData, setLidarData] = useState({
     dis: 0,
@@ -52,8 +54,6 @@ export default function Home() {
     timeStep: 0,
   });
 
-
-
   useEffect(() => {
     socket.connect();
 
@@ -64,31 +64,45 @@ export default function Home() {
 
     const onLidarUpdate = (data) => {
       setLidarData(data);
+      setIsReceivingData(true);
     };
 
     const onPositionUpdate = (data) => {
       setPositionData(data);
+      setIsReceivingData(true);
     };
 
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
+      setIsReceivingData(true);
     };
 
     const onTemperatureUpdate = (temps) => {
-      setState((prevState) => ({
-        ...prevState,
-        ambientTemperature: temps.tempAmbient.toFixed(1),
-        batteryTemperature: temps.tempBattery.toFixed(1),
-        averageTemperature: (
-          (parseFloat(temps.tempAmbient.toFixed(1)) +
-            parseFloat(temps.tempBattery.toFixed(1))) /
+      setState((prevState) => {
+        const ambientTemp = temps.tempAmbient
+          ? temps.tempAmbient.toFixed(1)
+          : 0;
+        const batteryTemp = temps.tempBattery
+          ? temps.tempBattery.toFixed(1)
+          : 0;
+        const averageTemp = (
+          (parseFloat(ambientTemp) + parseFloat(batteryTemp)) /
           2
-        ).toFixed(1),
-      }));
+        ).toFixed(1);
+
+        return {
+          ...prevState,
+          ambientTemperature: ambientTemp,
+          batteryTemperature: batteryTemp,
+          averageTemperature: averageTemp,
+        };
+      });
+      setIsReceivingData(true);
     };
 
     const onSpeedUpdate = (speed) => {
-      setState((prevState) => ({ ...prevState, speed:speed.speed*3.6}));
+      setState((prevState) => ({ ...prevState, speed: speed.speed * 3.6 }));
+      setIsReceivingData(true);
     };
 
     const onProgressUpdate = (progress) => {
@@ -96,6 +110,7 @@ export default function Home() {
         ...prevState,
         progress: progress.toFixed(1),
       }));
+      setIsReceivingData(true);
     };
 
     socket.on("connect", onConnect);
@@ -105,6 +120,7 @@ export default function Home() {
     socket.on("progressUpdate", onProgressUpdate);
     socket.on("lidarUpdate", onLidarUpdate);
     socket.on("positionUpdate", onPositionUpdate);
+    socket.on("ping", (ping)=>{setPing(ping)});
 
     return () => {
       socket.off("connect", onConnect);
@@ -116,6 +132,7 @@ export default function Home() {
       socket.off("positionUpdate", onPositionUpdate);
       socket.disconnect();
       setIsConnect(false);
+      setIsReceivingData(false);
     };
   }, []);
 
@@ -203,9 +220,11 @@ export default function Home() {
     <div className="container mx-auto px-2 py-4">
       <p1 className="text-2xl font-bold mb-4">
         Hyperloop Dashboard{" "}
-        {isConnect ? (
-          <h1 className="text-2xl font-bold mb-4">Connected</h1>
-        ) : null}
+        {isConnect && isReceivingData ? (
+          <span className="text-green-500">Connected {ping}{" "} ms</span>
+        ) : (
+          <span className="text-red-500">Disconnected</span>
+        )}
       </p1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
