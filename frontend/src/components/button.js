@@ -39,6 +39,10 @@ const Button = React.memo(
         }
         return prevActive;
       });
+
+      
+
+
     }, [text, addingData, onPress]);
 
     // ... diğer importlar ve component logic'i aynı kalacak

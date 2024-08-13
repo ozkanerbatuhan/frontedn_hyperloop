@@ -56,7 +56,7 @@ export default function Home() {
 
   useEffect(() => {
     let dataTimeout;
-  
+
     const resetDataTimeout = () => {
       if (dataTimeout) {
         clearTimeout(dataTimeout);
@@ -65,42 +65,46 @@ export default function Home() {
         setIsReceivingData(false);
       }, 2000); // 2 saniye boyunca veri alınmazsa disconnected yazısı görünür
     };
-  
+
     socket.connect();
-  
+
     const onConnect = () => {
       socket.emit("dashboard", socket.id);
       setIsConnect(true);
       resetDataTimeout();
     };
-  
+
     const onLidarUpdate = (data) => {
       setLidarData(data);
       setIsReceivingData(true);
       resetDataTimeout();
     };
-  
+
     const onPositionUpdate = (data) => {
       setPositionData(data);
       setIsReceivingData(true);
       resetDataTimeout();
     };
-  
+
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
       setIsReceivingData(true);
       resetDataTimeout();
     };
-  
+
     const onTemperatureUpdate = (temps) => {
       setState((prevState) => {
-        const ambientTemp = temps.tempAmbient ? temps.tempAmbient.toFixed(1) : 0;
-        const batteryTemp = temps.tempBattery ? temps.tempBattery.toFixed(1) : 0;
+        const ambientTemp = temps.tempAmbient
+          ? temps.tempAmbient.toFixed(1)
+          : 0;
+        const batteryTemp = temps.tempBattery
+          ? temps.tempBattery.toFixed(1)
+          : 0;
         const averageTemp = (
           (parseFloat(ambientTemp) + parseFloat(batteryTemp)) /
           2
         ).toFixed(1);
-  
+
         return {
           ...prevState,
           ambientTemperature: ambientTemp,
@@ -111,13 +115,13 @@ export default function Home() {
       setIsReceivingData(true);
       resetDataTimeout();
     };
-  
+
     const onSpeedUpdate = (speed) => {
       setState((prevState) => ({ ...prevState, speed: speed.speed * 3.6 }));
       setIsReceivingData(true);
       resetDataTimeout();
     };
-  
+
     const onProgressUpdate = (progress) => {
       setState((prevState) => ({
         ...prevState,
@@ -126,7 +130,7 @@ export default function Home() {
       setIsReceivingData(true);
       resetDataTimeout();
     };
-  
+
     socket.on("connect", onConnect);
     socket.on("motionUpdate", onMotionUpdate);
     socket.on("temperatureUpdate", onTemperatureUpdate);
@@ -138,7 +142,7 @@ export default function Home() {
       setPing(ping);
       resetDataTimeout();
     });
-  
+
     return () => {
       socket.off("connect", onConnect);
       socket.off("motionUpdate", onMotionUpdate);
@@ -153,7 +157,6 @@ export default function Home() {
       setIsReceivingData(false);
     };
   }, []);
-  
 
   const resetAll = useCallback(() => {
     setState((prevState) => ({
@@ -199,6 +202,7 @@ export default function Home() {
         color: "bg-blue-500",
         type: "isReady",
         group: "control",
+        
       },
       {
         text: "Start",
@@ -206,7 +210,12 @@ export default function Home() {
         type: "isStart",
         group: "control",
       },
-      { text: "Stop", color: "bg-red-700", type: "isStop", group: "control" },
+      {
+        text: "Stop",
+        color: "bg-red-700",
+        type: "isStop",
+        group: "control",
+      },
       {
         text: "Brake Calibration",
         color: "bg-purple-700",
@@ -240,7 +249,7 @@ export default function Home() {
       <p1 className="text-2xl font-bold mb-4">
         Hyperloop Dashboard{" "}
         {isConnect && isReceivingData ? (
-          <span className="text-green-500">Connected {ping}{" "} ms</span>
+          <span className="text-green-500">Connected {ping} ms</span>
         ) : (
           <span className="text-red-500">Disconnected</span>
         )}
