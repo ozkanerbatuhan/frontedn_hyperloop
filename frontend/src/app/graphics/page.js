@@ -21,7 +21,6 @@ export default function Home() {
   useEffect(() => {
     const handleConnect = () => {
       socket.emit("dashboard", socket.id);
-      console.log("connected", socket.id);
       isDataFlowing = true;
       setDataFlowState(true);
       // Bağlantı yeniden kurulduğunda veriyi sıfırla

@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-const Speedometer = ({ speed = 0 }) => {
+const Speedometer = ({ speed  }) => {
     const calcAngle = useMemo(() => (value) => {
         return -90 + (value * 1.8); // 0 -> -90 derece, 100 -> +90 derece
     }, []);
-
+    console.log(speed,typeof speed,calcAngle());
+    
     const angle = useMemo(() => calcAngle(speed), [calcAngle, speed]);
 
     return (
@@ -29,7 +30,7 @@ const Speedometer = ({ speed = 0 }) => {
                     aria-label="Current speed"
                 ></div>
                 <div className="center-point"></div>
-                <div className="speed-value">{Math.round(speed)} km/h</div>
+                <div className="speed-value">{speed.toFixed(1)} km/h</div>
             </div>
         </div>
     );

@@ -9,6 +9,7 @@ import BatteryLevel from "@/components/batteryLevel";
 import MotionDataDisplay from "@/components/motionDataDisplay";
 import Train3D from "@/components/train3D";
 import Lidar from "@/components/lidar";
+import BandCount from "@/components/bandCount";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -51,14 +52,13 @@ export default function Home() {
     timeStep: 0,
   });
 
-  console.log(positionData);
+
 
   useEffect(() => {
     socket.connect();
 
     const onConnect = () => {
       socket.emit("dashboard", socket.id);
-      console.log("connected", socket.id);
       setIsConnect(true);
     };
 
@@ -67,7 +67,6 @@ export default function Home() {
     };
 
     const onPositionUpdate = (data) => {
-      console.log("onPositionUpdate", data);
       setPositionData(data);
     };
 
@@ -89,7 +88,7 @@ export default function Home() {
     };
 
     const onSpeedUpdate = (speed) => {
-      setState((prevState) => ({ ...prevState, speed }));
+      setState((prevState) => ({ ...prevState, speed:speed.speed*3.6}));
     };
 
     const onProgressUpdate = (progress) => {
@@ -250,7 +249,9 @@ export default function Home() {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Speed TimeStep: {positionData.timeStep}</h2>
+          <h2 className="text-xl font-semibold mb-2">
+            Speed TimeStep: {positionData.timeStep}
+          </h2>
           <Speedometer speed={state.speed} />
         </div>
       </div>
@@ -322,15 +323,13 @@ export default function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-2">Band Count and Lidar</h2>
-            <div className="flex justify-between items-center">
-              <p className="text-xl text-gray-900">
-                Passed Band: {positionData.passedBandCount} Timestep:{" "}
-                {positionData.timeStep} Position: {positionData.position}
-              </p>
-              <Lidar lidarData={lidarData} />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <BandCount
+              passedBandCount={positionData.passedBandCount}
+              timeStep={positionData.timeStep}
+              position={positionData.position}
+            />
+            <Lidar lidarData={lidarData} />
           </div>
         </div>
         <div>
