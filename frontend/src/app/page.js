@@ -55,41 +55,52 @@ export default function Home() {
   });
 
   useEffect(() => {
+    let dataTimeout;
+  
+    const resetDataTimeout = () => {
+      if (dataTimeout) {
+        clearTimeout(dataTimeout);
+      }
+      dataTimeout = setTimeout(() => {
+        setIsReceivingData(false);
+      }, 2000); // 2 saniye boyunca veri alınmazsa disconnected yazısı görünür
+    };
+  
     socket.connect();
-
+  
     const onConnect = () => {
       socket.emit("dashboard", socket.id);
       setIsConnect(true);
+      resetDataTimeout();
     };
-
+  
     const onLidarUpdate = (data) => {
       setLidarData(data);
       setIsReceivingData(true);
+      resetDataTimeout();
     };
-
+  
     const onPositionUpdate = (data) => {
       setPositionData(data);
       setIsReceivingData(true);
+      resetDataTimeout();
     };
-
+  
     const onMotionUpdate = (data) => {
       setState((prevState) => ({ ...prevState, motion: data }));
       setIsReceivingData(true);
+      resetDataTimeout();
     };
-
+  
     const onTemperatureUpdate = (temps) => {
       setState((prevState) => {
-        const ambientTemp = temps.tempAmbient
-          ? temps.tempAmbient.toFixed(1)
-          : 0;
-        const batteryTemp = temps.tempBattery
-          ? temps.tempBattery.toFixed(1)
-          : 0;
+        const ambientTemp = temps.tempAmbient ? temps.tempAmbient.toFixed(1) : 0;
+        const batteryTemp = temps.tempBattery ? temps.tempBattery.toFixed(1) : 0;
         const averageTemp = (
           (parseFloat(ambientTemp) + parseFloat(batteryTemp)) /
           2
         ).toFixed(1);
-
+  
         return {
           ...prevState,
           ambientTemperature: ambientTemp,
@@ -98,21 +109,24 @@ export default function Home() {
         };
       });
       setIsReceivingData(true);
+      resetDataTimeout();
     };
-
+  
     const onSpeedUpdate = (speed) => {
       setState((prevState) => ({ ...prevState, speed: speed.speed * 3.6 }));
       setIsReceivingData(true);
+      resetDataTimeout();
     };
-
+  
     const onProgressUpdate = (progress) => {
       setState((prevState) => ({
         ...prevState,
         progress: progress.toFixed(1),
       }));
       setIsReceivingData(true);
+      resetDataTimeout();
     };
-
+  
     socket.on("connect", onConnect);
     socket.on("motionUpdate", onMotionUpdate);
     socket.on("temperatureUpdate", onTemperatureUpdate);
@@ -120,8 +134,11 @@ export default function Home() {
     socket.on("progressUpdate", onProgressUpdate);
     socket.on("lidarUpdate", onLidarUpdate);
     socket.on("positionUpdate", onPositionUpdate);
-    socket.on("ping", (ping)=>{setPing(ping)});
-
+    socket.on("ping", (ping) => {
+      setPing(ping);
+      resetDataTimeout();
+    });
+  
     return () => {
       socket.off("connect", onConnect);
       socket.off("motionUpdate", onMotionUpdate);
@@ -130,11 +147,13 @@ export default function Home() {
       socket.off("progressUpdate", onProgressUpdate);
       socket.off("lidarUpdate", onLidarUpdate);
       socket.off("positionUpdate", onPositionUpdate);
+      clearTimeout(dataTimeout);
       socket.disconnect();
       setIsConnect(false);
       setIsReceivingData(false);
     };
   }, []);
+  
 
   const resetAll = useCallback(() => {
     setState((prevState) => ({

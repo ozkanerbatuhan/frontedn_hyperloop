@@ -22,7 +22,7 @@ const Lidar = ({ lidarData }) => {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Time:</span>
-            <span className="text-xl font-semibold text-indigo-600">{Math.round(lidarData.time)} ms</span>
+            <span className="text-xl font-semibold text-indigo-600">{Math.round((lidarData.time))} ms</span>
           </div>
         </div>
       )}
