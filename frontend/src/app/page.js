@@ -277,7 +277,7 @@ export default function Home() {
       <p1 className="text-2xl font-bold mb-4">
         Hyperloop Dashboard{" "}
         {isConnect && isReceivingData ? (
-          <span className="text-green-500">Connected {ping} ms</span>
+          <span className="text-green-500">Connected </span>
         ) : (
           <span className="text-red-500">Disconnected</span>
         )}
