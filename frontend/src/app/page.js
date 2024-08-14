@@ -212,6 +212,7 @@ export default function Home() {
             socket.emit("break_close", newState.isBrakeClosed);
             break;
           case "isEmergency":
+
             socket.emit("emergency", newState.isEmergency); // If you have an "emergency" event
             break;
           default:
@@ -389,7 +390,7 @@ export default function Home() {
                   <Button
                     key={button.type}
                     text={button.text}
-                    color={button.color}
+                    color={ state.isEmergency?"bg-red-500" : button.color}
                     onPress={() => handleButtonPress(button.type)}
                     data={state[button.type]}
                     addingData={true}
