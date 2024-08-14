@@ -21,11 +21,6 @@ const Button = React.memo(
     }, [reset]);
 
     const handlePress = useCallback(() => {
-      
-
-      // Send data to backend
-      
-
       onPress();
 
       setIsActive((prevActive) => {
@@ -33,13 +28,15 @@ const Button = React.memo(
           return true;
         } else if (text === "Stop") {
           return false;
+        } else if (
+          text === "Brake Open" ||
+          text === "Brake Closed" ||
+          text === "Brake Calibration"
+        ) {
+          return !prevActive; // "Brake Open" butonuna basıldığında durumu toggle et
         }
         return prevActive;
       });
-
-      
-
-
     }, [text, addingData, onPress]);
 
     // ... diğer importlar ve component logic'i aynı kalacak

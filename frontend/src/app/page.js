@@ -179,8 +179,10 @@ export default function Home() {
         const newState = { ...prevState, [buttonType]: !prevState[buttonType] };
 
         if (buttonType === "isBrakeOpen" || buttonType === "isBrakeClosed") {
-          newState.isBrakeOpen = buttonType === "isBrakeOpen";
-          newState.isBrakeClosed = buttonType === "isBrakeClosed";
+          newState.isBrakeOpen =
+            buttonType === "isBrakeOpen" ? !prevState.isBrakeOpen : false;
+          newState.isBrakeClosed =
+            buttonType === "isBrakeClosed" ? !prevState.isBrakeClosed : false;
         }
 
         socket.emit(buttonType, newState[buttonType]);
@@ -206,14 +208,13 @@ export default function Home() {
             socket.emit("break_event", newState.isBrake);
             break;
           case "isBrakeOpen":
-            socket.emit("break_open", newState.isBrakeOpen);
+            socket.emit("break_open", newState.isBrakeOpen); // Brake Open düğmesi için true/false gönderimi
             break;
           case "isBrakeClosed":
-            socket.emit("break_close", newState.isBrakeClosed);
+            socket.emit("break_close", newState.isBrakeClosed); // Brake Closed düğmesi için true/false gönderimi
             break;
           case "isEmergency":
-
-            socket.emit("emergency", newState.isEmergency); // If you have an "emergency" event
+            socket.emit("emergency", newState.isEmergency);
             break;
           default:
             break;
@@ -390,7 +391,7 @@ export default function Home() {
                   <Button
                     key={button.type}
                     text={button.text}
-                    color={ state.isEmergency?"bg-red-500" : button.color}
+                    color={state.isEmergency ? "bg-red-500" : button.color}
                     onPress={() => handleButtonPress(button.type)}
                     data={state[button.type]}
                     addingData={true}
