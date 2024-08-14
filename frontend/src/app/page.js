@@ -10,6 +10,7 @@ import MotionDataDisplay from "@/components/motionDataDisplay";
 import Train3D from "@/components/train3D";
 import Lidar from "@/components/lidar";
 import BandCount from "@/components/bandCount";
+import VoltageDisplay from "@/components/BMS";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -420,7 +421,9 @@ export default function Home() {
           <MotionDataDisplay motion={state.motion} />
         </div>
       </div>
-
+      <div className="App">
+        <VoltageDisplay />
+      </div>
       {/* 3D Tren Animasyonu */}
       <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
         <h2 className="text-xl font-semibold mb-2">3D Train Animation</h2>

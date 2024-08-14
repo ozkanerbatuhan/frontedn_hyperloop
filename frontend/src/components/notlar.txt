@@ -1,0 +1,40 @@
+Voltaj değerleri:
+
+    -Teker Motor Bataryası Voltajı (1):
+        Tel1:
+        Tel2:
+        Tel3:
+        Tel4:
+        Tel5:
+        Tel6:
+
+    -Teker Motor Bataryası Voltajı (2):
+        Tel1:
+        Tel2:
+        Tel3:
+        Tel4:
+        Tel5:
+        Tel6:
+
+    -Teker Motor Bataryası Voltajı (3):
+        Tel1:
+        Tel2:
+        Tel3:
+        Tel4:
+        Tel5:
+        Tel6:
+
+    -Fren Motor Bataryası Voltajı:
+        Tel1:
+        Tel2:
+
+    Levitasyon Bataryası Voltajı:
+        Tel1:
+        Tel2:
+        Tel3:
+        Tel4:
+
+________________________________________________________________
+Akım 1:
+Akım 2:
+Akım 3:

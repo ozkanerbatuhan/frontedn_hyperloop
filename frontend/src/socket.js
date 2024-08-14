@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 const getSocketURL = () => {
-  return "http://192.168.143.207:3030"; // Geliştirme ortamı için varsayılan URL
+  return "http://192.168.149.207:3030"; // Geliştirme ortamı için varsayılan URL
 };
 
 const URL = getSocketURL();
