@@ -1,12 +1,7 @@
 import { io } from "socket.io-client";
 
-
-
 const getSocketURL = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_SOCKET_URL;
-  }
-  return "http://192.168.157.207:3030"; // Geliştirme ortamı için varsayılan URL
+  return "http://192.168.143.207:3030"; // Geliştirme ortamı için varsayılan URL
 };
 
 const URL = getSocketURL();
@@ -16,7 +11,7 @@ const socket = io(URL, {
   autoConnect: false,
   reconnection: true,
   reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
+  reconnectionDelay: 1,
 });
 
 socket.on("connect_error", (error) => {

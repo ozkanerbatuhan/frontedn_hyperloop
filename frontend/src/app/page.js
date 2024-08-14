@@ -212,7 +212,7 @@ export default function Home() {
             socket.emit("break_close", newState.isBrakeClosed);
             break;
           case "isEmergency":
-            socket.emit("emergency", newState.isEmergency); // If you have an "emergen  cy" event
+            socket.emit("emergency", newState.isEmergency); // If you have an "emergency" event
             break;
           default:
             break;
@@ -274,14 +274,21 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-2 py-4">
-      <p1 className="text-2xl font-bold mb-4">
+      <p className="text-2xl font-bold mb-4">
         Hyperloop Dashboard{" "}
-        {isConnect && isReceivingData ? (
-          <span className="text-green-500">Connected </span>
+        {isConnect ? (
+          <>
+            <span className="text-green-500">Connected</span>
+            {isReceivingData ? (
+              <span className="text-green-500"> - Data Flow</span>
+            ) : (
+              <span className="text-red-500"> - No Data</span>
+            )}
+          </>
         ) : (
           <span className="text-red-500">Disconnected</span>
         )}
-      </p1>
+      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">

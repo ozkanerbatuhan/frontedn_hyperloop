@@ -21,10 +21,7 @@ const Button = React.memo(
     }, [reset]);
 
     const handlePress = useCallback(() => {
-      if (text === "Start" && !addingData) {
-        alert("Önce Ready butonunu etkinleştirmelisiniz!");
-        return;
-      }
+      
 
       // Send data to backend
       
