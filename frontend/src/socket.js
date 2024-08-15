@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 const getSocketURL = () => {
-  return "http://localhost:3030";
+  return "http://192.168.241.207:3030";
 };
 
 const URL = getSocketURL();

@@ -5,11 +5,11 @@ import CirclesProgressBar from "@/components/circlesProgressBar";
 import LineProgressBar from "@/components/lineProgressBar";
 import Button from "@/components/button";
 import Speedometer from "@/components/speedometer";
-import BatteryLevel from "@/components/batteryLevel";
 import MotionDataDisplay from "@/components/motionDataDisplay";
 import Train3D from "@/components/train3D";
 import Lidar from "@/components/lidar";
 import BandCount from "@/components/bandCount";
+import BatteryDisplay from "@/components/batteryDisplay";
 import VoltageDisplay from "@/components/BMS";
 
 export default function Home() {
@@ -31,16 +31,13 @@ export default function Home() {
     percent: 0,
     bandCount: 0,
 
-    batteryLevels: {
-      battery1: 100,
-      battery2: 100,
-      battery3: 100,
-      battery4: 100,
-    },
+    batteryData: {},
   });
   const [isConnect, setIsConnect] = useState(false);
   const [isReceivingData, setIsReceivingData] = useState(false);
   const [ping, setPing] = useState(0);
+  const [batteryData, setBatteryData] = useState({});
+  const [prevBatteryData, setPrevBatteryData] = useState({});
 
   const [lidarData, setLidarData] = useState({
     dis: 0,
@@ -123,6 +120,8 @@ export default function Home() {
       resetDataTimeout();
     };
 
+    
+
     const onProgressUpdate = (progress) => {
       setState((prevState) => ({
         ...prevState,
@@ -139,6 +138,7 @@ export default function Home() {
     socket.on("progressUpdate", onProgressUpdate);
     socket.on("lidarUpdate", onLidarUpdate);
     socket.on("positionUpdate", onPositionUpdate);
+    socket.on("battery_data", onBatteryUpdate);
     socket.on("ping", (ping) => {
       setPing(ping);
       resetDataTimeout();
@@ -152,6 +152,7 @@ export default function Home() {
       socket.off("progressUpdate", onProgressUpdate);
       socket.off("lidarUpdate", onLidarUpdate);
       socket.off("positionUpdate", onPositionUpdate);
+      socket.off("battery_data", onBatteryUpdate);
       clearTimeout(dataTimeout);
       socket.disconnect();
       setIsConnect(false);
@@ -173,6 +174,14 @@ export default function Home() {
       0
     );
   }, []);
+
+  const onBatteryUpdate = (data) => {
+    console.log(data);
+    
+    setBatteryData(data);
+    setIsReceivingData(true);
+    resetDataTimeout();
+  };
 
   const handleButtonPress = useCallback(
     (buttonType) => {
@@ -293,7 +302,7 @@ export default function Home() {
         )}
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">Temperatures</h2>
           <div className="flex justify-between space-x-4">
@@ -311,27 +320,7 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Batteries</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <BatteryLevel
-              percent={state.batteryLevels.battery1}
-              label="Elektronik Bataryası"
-            />
-            <BatteryLevel
-              percent={state.batteryLevels.battery2}
-              label="İtki Bataryası"
-            />
-            <BatteryLevel
-              percent={state.batteryLevels.battery3}
-              label="Motor Sürücü Bataryası"
-            />
-            <BatteryLevel
-              percent={state.batteryLevels.battery4}
-              label="Levitasyon Bataryası"
-            />
-          </div>
-        </div>
+        
 
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-2">
@@ -420,6 +409,10 @@ export default function Home() {
         <div>
           <MotionDataDisplay motion={state.motion} />
         </div>
+        {/* <div className="bg-white p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold mb-2">Batteries</h2>
+              <BatteryDisplay batteryData={batteryData} />
+            </div> */}
       </div>
       {/* <div className="App">
         <VoltageDisplay />
