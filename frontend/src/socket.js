@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 const getSocketURL = () => {
-  return "http://localhost:3030"; // Geliştirme ortamı için varsayılan URL
+  return "http://localhost:3030";
 };
 
 const URL = getSocketURL();

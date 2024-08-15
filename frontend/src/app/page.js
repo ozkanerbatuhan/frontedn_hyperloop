@@ -421,14 +421,12 @@ export default function Home() {
           <MotionDataDisplay motion={state.motion} />
         </div>
       </div>
-      <div className="App">
+      {/* <div className="App">
         <VoltageDisplay />
-      </div>
-      {/* 3D Tren Animasyonu */}
-      <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+      </div> */}
+      {/* <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-3xl mx-auto">
         <h2 className="text-xl font-semibold mb-2">3D Train Animation</h2>
-        {/* <Train3D motion={state.motion} /> */}
-      </div>
+      </div> */}
     </div>
   );
 }
