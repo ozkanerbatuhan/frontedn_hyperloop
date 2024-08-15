@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
-import * as THREE from "three";
+//import * as THREE from "three";
 
 const Train3D = ({ motion }) => {
   const mountRef = useRef(null);

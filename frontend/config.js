@@ -1,5 +1,5 @@
 const appConfig = {
-    socketUrl:"http://localhost:3030"
+    socketUrl:"http://192.168.196.207:3030"
 }
 
 export default appConfig
